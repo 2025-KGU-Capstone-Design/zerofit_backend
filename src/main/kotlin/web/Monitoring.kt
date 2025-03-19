@@ -1,4 +1,4 @@
-package com.zerofit
+package com.zerofit.web
 
 import io.ktor.server.application.*
 import io.ktor.server.plugins.calllogging.*
