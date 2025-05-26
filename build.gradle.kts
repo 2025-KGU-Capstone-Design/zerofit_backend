@@ -3,6 +3,7 @@ val h2_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val koin_version: String by project
+val ktor_version: String by project
 
 plugins {
     kotlin("jvm") version "2.1.10"
@@ -42,4 +43,13 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    // MySQL JDBC
+    implementation("mysql:mysql-connector-java:8.0.33")
+
+    // Connection pool (권장)
+    implementation("com.zaxxer:HikariCP:5.1.0")
+
+    implementation("org.mindrot:jbcrypt:0.4")
+    implementation("io.ktor:ktor-server-auth:${ktor_version}")
+    implementation("io.ktor:ktor-server-auth-jwt:${ktor_version}")
 }
