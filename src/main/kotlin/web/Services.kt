@@ -1,5 +1,7 @@
 package com.zerofit.web
 
+import com.zerofit.service.SolutionService
+import com.zerofit.service.SolutionServiceImpl
 import com.zerofit.service.UserService
 import com.zerofit.service.UserServiceImpl
 import io.ktor.server.application.*
@@ -12,6 +14,7 @@ fun Application.configureServices() {
         slf4jLogger()
         modules(module {
             single<UserService> { UserServiceImpl() }
+            single<SolutionService> { SolutionServiceImpl() }
         })
     }
 }

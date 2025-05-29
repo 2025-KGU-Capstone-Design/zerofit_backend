@@ -31,9 +31,9 @@ fun Application.configureDatabases() {
     transaction {
         SchemaUtils.create(
             Users,
-            RequestHistoryTable,
+            SearchHistoryTable,
             FacilitiesTable,
-            ResponseHistory
+            SolutionTable
         )
     }
 }

@@ -1,0 +1,145 @@
+openapi: "3.1.0"
+info:
+  title: "zerofit_backend API"
+  description: "zerofit_backend API"
+  version: "1.0.0"
+servers:
+  - url: "https://zerofit_backend"
+paths:
+  /:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Hello World!"
+  /api/login:
+    post:
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestLogin"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HashMap_String"
+  /api/user:
+    post:
+      description: ""
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HashMap_String"
+  /api/user/availability/{userId}:
+    get:
+      description: ""
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "User ID cannot be empty"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HashMap_String"
+  /user/{id}:
+    get:
+      description: ""
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "User ID cannot be empty"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+components:
+  schemas:
+    RequestLogin:
+      type: "object"
+      properties:
+        userId:
+          type: "string"
+        password:
+          type: "string"
+      required:
+        - "userId"
+        - "password"
+    HashMap:
+      type: "object"
+      properties: { }
+    HashMap_String:
+      type: "string"
+    User:
+      type: "object"
+      properties:
+        userId:
+          type: "string"
+        password:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "string"
+        companyName:
+          type: "string"
+      required:
+        - "userId"
+        - "password"
+        - "email"
+        - "phone"
+        - "companyName"

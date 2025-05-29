@@ -2,11 +2,9 @@ package com.zerofit.service
 
 import com.zerofit.persistence.User
 import com.zerofit.persistence.Users
-import com.zerofit.web.RequestLogin
-import kotlinx.coroutines.Dispatchers
+import com.zerofit.route.RequestLogin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.mindrot.jbcrypt.BCrypt
 
 interface UserService {
@@ -16,7 +14,7 @@ interface UserService {
     suspend fun isUserIdAvailable(userId: String): Boolean
 }
 
-open class UserServiceImpl : UserService {
+open class UserServiceImpl : UserService, BaseService() {
 
     override suspend fun getUser(userId: String): User? = dbQuery {
         Users.selectAll()
@@ -47,6 +45,7 @@ open class UserServiceImpl : UserService {
 
     override suspend fun login(credential: RequestLogin): String {
         val user = getUser(credential.userId)
+
         if (user == null) {
             throw IllegalArgumentException("User not found")
         }
@@ -61,7 +60,4 @@ open class UserServiceImpl : UserService {
     override suspend fun isUserIdAvailable(userId: String): Boolean = dbQuery {
         Users.selectAll().where { Users.user_id eq userId }.count() == 0.toLong()
     }
-
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
 }

@@ -8,3 +8,4 @@ ktor:
     issuer: "http://localhost:8080/"
     audience: "zerofit"
     secret: "zerofit"
+    realm: "auth-jwt"
