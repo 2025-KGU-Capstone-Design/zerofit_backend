@@ -1,8 +1,8 @@
 package com.zerofit.service
 
-import com.zerofit.persistence.User
+import com.zerofit.model.User
 import com.zerofit.persistence.Users
-import com.zerofit.route.RequestLogin
+import com.zerofit.model.RequestLogin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.mindrot.jbcrypt.BCrypt

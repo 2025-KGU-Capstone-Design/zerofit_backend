@@ -1,16 +1,6 @@
 package com.zerofit.persistence
 
-import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
-
-@Serializable
-data class User(
-    val userId: String,
-    val password: String,
-    val email: String,
-    val phone: String,
-    val companyName: String
-)
 
 object Users : Table() {
     val user_id = varchar("id", length = 50)

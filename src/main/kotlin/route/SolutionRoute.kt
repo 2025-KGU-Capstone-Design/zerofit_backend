@@ -1,5 +1,9 @@
 package com.zerofit.route
 
+import com.zerofit.model.Comment
+import com.zerofit.model.CommentReqDto
+import com.zerofit.model.SearchParams
+import com.zerofit.model.Solution
 import com.zerofit.service.SolutionService
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -10,34 +14,21 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SearchParams(
-    val industry: String,
-    val targetFacilities: List<String>,
-    val availableInvestment: Double,
-    val currentEmission: Double,
-    val targetEmission: Double,
-    val targetRoiPeriod: Double
+data class SolutionDto(
+    val requestId: Int,
+    val solution: List<Solution>
 )
 
 @Serializable
-data class Solution(
-    val type: String,
-    val rank: Int,
-    val score: Double? = null,
-    val improvementType: String,
-    val facility: String,
-    val activity: String,
-    val industry: String,
-    val emissionReduction: Double,
-    val costSaving: Double,
-    val roiPeriod: Double,
-    val investmentCost: Double
+data class HistoryDto(
+    val comment: List<Comment>,
+    val solution: List<Solution>
 )
 
 fun Route.solutionRoute(solutionService: SolutionService) {
 
     authenticate("auth-jwt") {
-        //솔루션
+        //솔루션 요청
         post("/api/solution/request") {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.payload?.getClaim("userId")?.asString()
@@ -60,7 +51,31 @@ fun Route.solutionRoute(solutionService: SolutionService) {
             // 요청 기록 조회
             val responseSol = solutionService.getSolutionByReqId(requestId)
 
-            call.respond(HttpStatusCode.OK, hashMapOf("solution" to responseSol))
+            val solutionDto = SolutionDto(
+                requestId = requestId,
+                solution = responseSol
+            )
+
+            call.respond(HttpStatusCode.OK, solutionDto)
+        }
+
+        // type별 comment 요청
+        post("/api/solution/comment/{requestId}") {
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.payload?.getClaim("userId")?.asString()
+                ?: throw IllegalArgumentException("User ID not found in token")
+
+            val requestId = call.parameters["requestId"]?.toIntOrNull()
+                ?: throw IllegalArgumentException("Invalid request ID")
+
+            val llmParams = call.receive<CommentReqDto>().llmParams
+
+            // AI 서버에 코멘트 요청
+            val comment = solutionService.requestComment(llmParams)
+
+            solutionService.createCommentHistory(userId, requestId, comment)
+
+            call.respond(HttpStatusCode.OK, comment)
         }
 
         //북마크된 솔루션 조회
@@ -76,13 +91,21 @@ fun Route.solutionRoute(solutionService: SolutionService) {
 
         // 솔루션 북마크
         put("/api/solution/{solId}") {
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.payload?.getClaim("userId")?.asString()
+                ?: throw IllegalArgumentException("User ID not found in token")
+
             val solId = call.parameters["solId"]?.toIntOrNull()
                 ?: throw IllegalArgumentException("Invalid solution ID")
 
             // 솔루션 업데이트
-            val updatedSolution = solutionService.updateSolution(solId)
+            val updatedSolution = solutionService.updateSolution(userId, solId)
 
-            call.respond(HttpStatusCode.OK, updatedSolution)
+            if (updatedSolution == 0) {
+                throw IllegalArgumentException("Solution not found or user does not have permission to update this solution.")
+            }
+
+            call.respond(HttpStatusCode.OK, "업데이트 성공")
         }
 
         //솔루션 상세 조회
@@ -109,6 +132,25 @@ fun Route.solutionRoute(solutionService: SolutionService) {
             val searchHistory = solutionService.getSearchHistory(userId)
 
             call.respond(HttpStatusCode.OK, searchHistory)
+        }
+
+        // 검색 내역에 해당하는 솔루션 기록 조회
+        get("/api/solution/history/{requestId}") {
+            val requestId = call.parameters["requestId"]?.toIntOrNull()
+                ?: throw IllegalArgumentException("Invalid request ID")
+
+            val solutionHistory = solutionService.getSolutionByReqId(requestId)
+            val commentHistory = solutionService.getCommentByReqId(requestId)
+
+            val historyDto = HistoryDto(
+                comment = commentHistory,
+                solution = solutionHistory
+            )
+            if (solutionHistory.isNotEmpty()) {
+                call.respond(HttpStatusCode.OK, historyDto)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No solutions found for the given request ID")
+            }
         }
     }
 }

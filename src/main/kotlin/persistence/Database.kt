@@ -33,7 +33,8 @@ fun Application.configureDatabases() {
             Users,
             SearchHistoryTable,
             FacilitiesTable,
-            SolutionTable
+            SolutionTable,
+            CommentTable,
         )
     }
 }

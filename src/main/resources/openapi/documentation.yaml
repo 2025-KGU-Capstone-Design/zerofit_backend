@@ -4,7 +4,7 @@ info:
   description: "zerofit_backend API"
   version: "1.0.0"
 servers:
-  - url: "https://zerofit_backend"
+  - url: "http://localhost:8080"
 paths:
   /:
     get:
@@ -35,7 +35,203 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/HashMap_String"
+  /api/search/history:
+    get:
+      description: "검색내역 조회"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/SearchHistory"
+  /api/solution/{solId}:
+    get:
+      description: "솔루션 상세 조회"
+      parameters:
+        - name: "solId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SolutionHistory"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Solution not found"
+    put:
+      description: "솔루션 북마크"
+      parameters:
+        - name: "solId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "업데이트 성공"
+  /api/solution/bookmark:
+    get:
+      description: "북마크된 솔루션 조회"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Solution"
+  /api/solution/comment/{requestId}:
+    post:
+      description: "type별 comment 요청"
+      parameters:
+        - name: "requestId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentReqDto"
+        required: true
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Comment"
+  /api/solution/history/{requestId}:
+    get:
+      description: "검색 내역에 해당하는 솔루션 기록 조회"
+      parameters:
+        - name: "requestId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/HistoryDto"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "No solutions found for the given request ID"
+  /api/solution/request:
+    post:
+      description: "솔루션 요청"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchParams"
+        required: true
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SolutionDto"
   /api/user:
+    get:
+      description: ""
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "User not found"
     post:
       description: ""
       requestBody:
@@ -64,49 +260,15 @@ paths:
         "400":
           description: "Bad Request"
           content:
-            '*/*':
+            text/plain:
               schema:
                 type: "string"
-              examples:
-                Example#1:
-                  value: "User ID cannot be empty"
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/HashMap_String"
-  /user/{id}:
-    get:
-      description: ""
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "User ID cannot be empty"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/User"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "object"
 components:
   schemas:
     RequestLogin:
@@ -124,6 +286,221 @@ components:
       properties: { }
     HashMap_String:
       type: "string"
+    SearchHistory:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        userId:
+          type: "string"
+        industry:
+          type: "string"
+        targetFacilities:
+          type: "array"
+          items:
+            type: "string"
+        availableInvestment:
+          type: "number"
+          format: "double"
+        currentEmission:
+          type: "number"
+          format: "double"
+        targetEmission:
+          type: "number"
+          format: "double"
+        targetRoiPeriod:
+          type: "number"
+          format: "double"
+      required:
+        - "id"
+        - "userId"
+        - "industry"
+        - "targetFacilities"
+        - "availableInvestment"
+        - "currentEmission"
+        - "targetEmission"
+        - "targetRoiPeriod"
+    SolutionHistory:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        requestId:
+          type: "integer"
+          format: "int32"
+        userId:
+          type: "string"
+          nullable: true
+        type:
+          type: "string"
+        rank:
+          type: "integer"
+          format: "int32"
+        improvementType:
+          type: "string"
+        facility:
+          type: "string"
+        activity:
+          type: "string"
+        industry:
+          type: "string"
+        emissionReduction:
+          type: "number"
+          format: "double"
+        costSaving:
+          type: "number"
+          format: "double"
+        roiPeriod:
+          type: "number"
+          format: "double"
+        investmentCost:
+          type: "number"
+          format: "double"
+        bookmark:
+          type: "boolean"
+      required:
+        - "id"
+        - "requestId"
+        - "type"
+        - "rank"
+        - "improvementType"
+        - "facility"
+        - "activity"
+        - "industry"
+        - "emissionReduction"
+        - "costSaving"
+        - "roiPeriod"
+        - "investmentCost"
+        - "bookmark"
+    Solution:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+          nullable: true
+        type:
+          type: "string"
+        rank:
+          type: "integer"
+          format: "int32"
+        improvementType:
+          type: "string"
+        facility:
+          type: "string"
+        activity:
+          type: "string"
+        industry:
+          type: "string"
+        emissionReduction:
+          type: "number"
+          format: "double"
+        costSaving:
+          type: "number"
+          format: "double"
+        roiPeriod:
+          type: "number"
+          format: "double"
+        investmentCost:
+          type: "number"
+          format: "double"
+        bookmark:
+          type: "boolean"
+          nullable: true
+      required:
+        - "type"
+        - "rank"
+        - "improvementType"
+        - "facility"
+        - "activity"
+        - "industry"
+        - "emissionReduction"
+        - "costSaving"
+        - "roiPeriod"
+        - "investmentCost"
+    CommentReqDto:
+      type: "object"
+      properties:
+        llmParams:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Solution"
+      required:
+        - "llmParams"
+    Comment:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+          nullable: true
+        type:
+          type: "string"
+        top1:
+          type: "string"
+        comparison:
+          type: "string"
+      required:
+        - "type"
+        - "top1"
+        - "comparison"
+    HistoryDto:
+      type: "object"
+      properties:
+        comment:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Comment"
+        solution:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Solution"
+      required:
+        - "comment"
+        - "solution"
+    SearchParams:
+      type: "object"
+      properties:
+        industry:
+          type: "string"
+        targetFacilities:
+          type: "array"
+          items:
+            type: "string"
+        availableInvestment:
+          type: "number"
+          format: "double"
+        currentEmission:
+          type: "number"
+          format: "double"
+        targetEmission:
+          type: "number"
+          format: "double"
+        targetRoiPeriod:
+          type: "number"
+          format: "double"
+      required:
+        - "industry"
+        - "targetFacilities"
+        - "availableInvestment"
+        - "currentEmission"
+        - "targetEmission"
+        - "targetRoiPeriod"
+    SolutionDto:
+      type: "object"
+      properties:
+        requestId:
+          type: "integer"
+          format: "int32"
+        solution:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Solution"
+      required:
+        - "requestId"
+        - "solution"
     User:
       type: "object"
       properties:

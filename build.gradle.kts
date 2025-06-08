@@ -28,7 +28,10 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-cors")
+    implementation("io.ktor:ktor-client-core")
+    implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-call-logging")
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
@@ -53,4 +56,6 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:${ktor_version}")
     implementation("io.ktor:ktor-server-auth-jwt:${ktor_version}")
     implementation("io.ktor:ktor-server-swagger:${ktor_version}")
+
+
 }

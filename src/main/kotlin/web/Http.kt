@@ -14,6 +14,7 @@ fun Application.configureHttp() {
         allowHeader(HttpHeaders.Authorization)
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Options)
     }
 

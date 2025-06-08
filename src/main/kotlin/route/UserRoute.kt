@@ -2,7 +2,8 @@ package com.zerofit.route
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.zerofit.persistence.User
+import com.zerofit.model.RequestLogin
+import com.zerofit.model.User
 import com.zerofit.service.UserService
 import io.ktor.http.*
 import io.ktor.server.auth.authenticate
@@ -11,13 +12,6 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class RequestLogin(
-    val userId: String,
-    val password: String
-)
 
 fun Route.userRoute(userService: UserService) {
 

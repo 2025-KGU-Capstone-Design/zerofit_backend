@@ -1,19 +1,6 @@
 package com.zerofit.persistence
 
-import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
-
-@Serializable
-data class SearchHistory(
-    val id: Int,
-    val userId: String,
-    val industry: String,
-    val targetFacilities: List<String>,
-    val availableInvestment: Double,
-    val currentEmission: Double,
-    val targetEmission: Double,
-    val targetRoiPeriod: Double
-)
 
 object SearchHistoryTable : Table() {
     val id = integer("id").autoIncrement()
